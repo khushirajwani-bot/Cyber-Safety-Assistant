@@ -29,10 +29,10 @@ export default function Home() {
             An interactive educational platform designed to teach you how to spot threats, secure your data, and navigate the web with confidence.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" className="h-12 px-8 text-base bg-blue-600 hover:bg-blue-700 text-white" render={<Link href="/learning-hub" />}>
+            <Button size="lg" className="h-12 px-8 text-base bg-blue-600 hover:bg-blue-700 text-white" render={<Link href="/learning-hub" />} nativeButton={false}>
               Start Learning <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="h-12 px-8 text-base" render={<Link href="/phishing-simulator" />}>
+            <Button size="lg" variant="outline" className="h-12 px-8 text-base" render={<Link href="/phishing-simulator" />} nativeButton={false}>
               Try the Simulator
             </Button>
           </div>
@@ -178,7 +178,7 @@ export default function Home() {
           <p className="text-xl text-muted-foreground mb-10">
             Put your skills to the test in a safe environment. Start by analyzing a suspicious email in our simulator.
           </p>
-          <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-500/20" render={<Link href="/phishing-simulator" />}>
+          <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-500/20" render={<Link href="/phishing-simulator" />} nativeButton={false}>
             Launch Phishing Simulator <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>

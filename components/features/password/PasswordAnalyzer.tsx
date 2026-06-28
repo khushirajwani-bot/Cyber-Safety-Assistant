@@ -1,16 +1,78 @@
 "use client";
 
-import { useState } from "react";
-import { Eye, EyeOff, Check, X, ShieldCheck, Clock, AlertTriangle, Lightbulb } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Check, X, ShieldCheck, Clock, AlertTriangle, Lightbulb, RefreshCw, Copy, ArrowRight, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { calculatePasswordStrength } from "@/lib/security-utils";
+import { useUserProgressStore } from "@/store/user-progress";
 
 export function PasswordAnalyzer() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const result = calculatePasswordStrength(password);
   
+  // Generator State
+  const [genLength, setGenLength] = useState(16);
+  const [includeUpper, setIncludeUpper] = useState(true);
+  const [includeLower, setIncludeLower] = useState(true);
+  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeSymbols, setIncludeSymbols] = useState(true);
+  const [generatedPassword, setGeneratedPassword] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const result = calculatePasswordStrength(password);
+  const incrementPasswordChecks = useUserProgressStore((state) => state.incrementPasswordChecks);
+
+  const generatePassword = () => {
+    let charset = "";
+    if (includeUpper) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (includeLower) charset += "abcdefghijklmnopqrstuvwxyz";
+    if (includeNumbers) charset += "0123456789";
+    if (includeSymbols) charset += "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+
+    if (!charset) {
+      setGeneratedPassword("");
+      return;
+    }
+
+    let result = "";
+    for (let i = 0; i < genLength; i++) {
+      result += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    setGeneratedPassword(result);
+    setCopied(false);
+  };
+
+  const copyToClipboard = () => {
+    if (!generatedPassword) return;
+    navigator.clipboard.writeText(generatedPassword);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const testGeneratedPassword = () => {
+    if (!generatedPassword) return;
+    setPassword(generatedPassword);
+  };
+
+  // Debounce and increment password checks
+  useEffect(() => {
+    if (!password.trim()) return;
+    const timer = setTimeout(() => {
+      incrementPasswordChecks();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [password, incrementPasswordChecks]);
+
+  // Generate password on mount
+  useEffect(() => {
+    const handle = requestAnimationFrame(() => {
+      generatePassword();
+    });
+    return () => cancelAnimationFrame(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const getProgressColor = () => {
     if (result.label === 'Weak') return 'bg-destructive';
     if (result.label === 'Fair') return 'bg-yellow-500';
@@ -149,7 +211,95 @@ export function PasswordAnalyzer() {
             )}
           </div>
         </div>
+
+        <hr className="border-border my-6" />
+
+        {/* Password Generator Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
+            <RefreshCw className="h-5 w-5" />
+            Password Generator
+          </h3>
+          
+          <div className="bg-muted/30 p-4 rounded-lg border space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div className="flex-1 bg-background border rounded-md h-12 px-4 flex items-center justify-between font-mono text-base overflow-x-auto whitespace-nowrap scrollbar-none shadow-sm">
+                <span>{generatedPassword || <span className="text-muted-foreground text-sm">Configure options...</span>}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={generatePassword}
+                  className="bg-secondary hover:bg-secondary/80 text-secondary-foreground p-3 rounded-md border shadow-sm transition-colors flex items-center justify-center"
+                  title="Regenerate"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-3 rounded-md border shadow-sm transition-colors flex items-center justify-center gap-2 font-medium text-sm min-w-[90px]"
+                >
+                  {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={testGeneratedPassword}
+                  disabled={!generatedPassword}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-3 rounded-md shadow-sm transition-colors flex items-center justify-center gap-1.5 font-medium text-sm"
+                >
+                  <span>Test</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Settings className="h-4 w-4" /> Length: <span className="font-mono text-foreground font-bold">{genLength}</span>
+                </span>
+                <input
+                  type="range"
+                  min="8"
+                  max="32"
+                  value={genLength}
+                  onChange={(e) => {
+                    setGenLength(parseInt(e.target.value));
+                  }}
+                  onMouseUp={generatePassword}
+                  onTouchEnd={generatePassword}
+                  className="flex-1 max-w-[250px] h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                {[
+                  { label: "Uppercase (A-Z)", val: includeUpper, set: setIncludeUpper },
+                  { label: "Lowercase (a-z)", val: includeLower, set: setIncludeLower },
+                  { label: "Numbers (0-9)", val: includeNumbers, set: setIncludeNumbers },
+                  { label: "Symbols (!@#$)", val: includeSymbols, set: setIncludeSymbols },
+                ].map((option, idx) => (
+                  <label key={idx} className="flex items-center gap-2.5 text-sm cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={option.val}
+                      onChange={(e) => {
+                        option.set(e.target.checked);
+                      }}
+                      onClick={() => setTimeout(generatePassword, 0)}
+                      className="rounded border-input text-primary focus:ring-primary h-4 w-4 accent-primary"
+                    />
+                    <span className="text-muted-foreground font-medium">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
 }
+
