@@ -50,11 +50,16 @@ export default function AboutDeveloperPage() {
         <div className="h-32 bg-gradient-to-r from-primary/20 to-primary/5 w-full"></div>
         <CardHeader className="-mt-16 pb-2">
           <div className="mx-auto bg-background p-2 rounded-full inline-block border shadow-sm">
-            <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
-              <Code className="h-10 w-10 text-muted-foreground" />
+            <div className="w-24 h-24 rounded-full overflow-hidden relative border bg-muted">
+              <img
+                src="/developer.jpg"
+                alt="Khushi Rajwani"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
-          <CardTitle className="text-2xl mt-4">Student Developer</CardTitle>
+          <CardTitle className="text-2xl mt-4">Khushi Rajwani</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">Student Developer</p>
         </CardHeader>
         <CardContent className="pt-4">
           <p className="text-muted-foreground mb-6">
@@ -64,18 +69,24 @@ export default function AboutDeveloperPage() {
           </p>
           
           <div className="flex justify-center gap-4">
-            <Button variant="outline" size="icon" className="rounded-full">
-              <GithubIcon className="h-4 w-4" />
-              <span className="sr-only">GitHub</span>
-            </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <LinkedinIcon className="h-4 w-4" />
-              <span className="sr-only">LinkedIn</span>
-            </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Mail className="h-4 w-4" />
-              <span className="sr-only">Email</span>
-            </Button>
+            <a href="https://github.com/khushirajwani-bot" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="icon" className="rounded-full">
+                <GithubIcon className="h-4 w-4" />
+                <span className="sr-only">GitHub</span>
+              </Button>
+            </a>
+            <a href="https://www.linkedin.com/in/khushi-rajwani-6b354a358/" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="icon" className="rounded-full">
+                <LinkedinIcon className="h-4 w-4" />
+                <span className="sr-only">LinkedIn</span>
+              </Button>
+            </a>
+            <a href="mailto:khushirajwani888@gmail.com">
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Mail className="h-4 w-4" />
+                <span className="sr-only">Email</span>
+              </Button>
+            </a>
           </div>
         </CardContent>
       </Card>
